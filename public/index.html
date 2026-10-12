@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>小鹤双拼 · 练习</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<nav class="nav"><b>小鹤双拼练习</b><a href="index.html" class=on>练习</a><a href="profile.html">进度</a><a href="keyboard.html">键位表</a></nav>
+<main>
+<h1>小鹤双拼 · 键位练习</h1>
+<p class="sub">选范围，看字，敲两个键。只出两键都落在所选范围内的音节。</p>
+<div class="stats">
+<div class="stat"><b id="sV">—</b><span>字/分</span></div>
+<div class="stat"><b id="sT">0</b><span>已练</span></div>
+<div class="stat"><b id="sA">—</b><span>首次正确率</span></div>
+<div class="stat"><b id="sS">0</b><span>连对</span></div>
+</div>
+<div class="metrics" id="metrics"></div>
+<div class="goal"><div id="goalT"></div><div class="gbar"><i id="goalB"></i></div></div>
+<div class="seg" id="seg"><button data-m="guided">引导</button><button data-m="r1">第一行</button><button data-m="r2">第二行</button><button data-m="r3">第三行</button><button data-m="all">混合</button></div>
+<div class="strip" id="strip"></div><p class="info" id="info"></p>
+<div class="card">
+<div class="stage" id="stage">
+<div class="flow" id="flow"></div>
+<div class="ch" id="ch"></div><div class="py" id="py"></div>
+<div class="slots" id="slots"><div class="slot"></div><div class="slot"></div></div>
+<div class="msg" id="msg"></div>
+</div>
+<div id="kb"></div>
+<p class="leg"><span class="o">橙</span> 声母、韵母同一个键 · <span class="g">绿</span> y / w / 零声母音节用此键作韵母 · 键下色条：熟练度（红→绿）</p>
+<div class="chartbox"><div id="chartT" class="chartT"></div><svg id="chart" viewBox="0 0 300 80" preserveAspectRatio="none"></svg></div>
+<div class="opts">
+<span><label><input type="checkbox" id="oPy" checked> 显示拼音</label><label><input type="checkbox" id="oHint"> 键位提示</label><label>目标 <input type="number" id="tgt" min="75" max="750" value="100" style="width:58px"> 击键/分</label></span>
+<button class="r" id="reset">重置统计</button>
+</div>
+<input id="cap" type="password" autocapitalize="off" autocomplete="new-password" autocorrect="off" spellcheck="false" aria-label="输入">
+</div>
+</main>
+<script type="module" src="js/practice.js"></script>
+</body>
+</html>

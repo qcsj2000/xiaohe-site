@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>小鹤双拼 · 键位表</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<nav class="nav"><b>小鹤双拼练习</b><a href="index.html">练习</a><a href="profile.html">进度</a><a href="keyboard.html" class=on>键位表</a></nav><main class="ref">
+<h1>小鹤双拼键位表</h1><p class="sub">橙色：声母、韵母在同一个键；绿色：y / w / 零声母音节用此键作韵母。</p>
+<div class="card" style="padding:12px"><div id="kb"></div></div>
+<h2>规则</h2>
+<ul>
+<li>三个特殊声母：sh → <code>U</code>，ch → <code>I</code>，zh → <code>V</code>；其余声母按首字母。</li>
+<li>零声母：<code>a o e</code> 叠敲（啊 <code>aa</code>，哦 <code>oo</code>，饿 <code>ee</code>）；其余用「首字母 + 韵母键」，如 爱 <code>ad</code>、安 <code>aj</code>、昂 <code>ah</code>、欧 <code>oz</code>、恩 <code>ef</code>、二 <code>er</code>。</li>
+<li>y、w 开头：后面按真实韵母取键，如 鱼 <code>yv</code>、蛙 <code>wx</code>、王 <code>wl</code>、月 <code>yt</code>。</li>
+<li>j q x 后面的 u 实际是 ü，直接按 u 键（去 <code>qu</code>）；n、l 后的 ü 用 v 键（女 <code>nv</code>）。</li>
+</ul>
+<p>说明：键位和例字来自小鹤官网键位图。y、w 开头音节里，ya yao ye yan yang you wai wan wen 等我没有找到官方依据，所以练习里不出这些音节。</p>
+</main>
+<script type="module" src="js/keyboard.js"></script>
+</body>
+</html>

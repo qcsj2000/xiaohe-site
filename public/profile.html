@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>小鹤双拼 · 进度</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<nav class="nav"><b>小鹤双拼练习</b><a href="index.html">练习</a><a href="profile.html" class=on>进度</a><a href="keyboard.html">键位表</a></nav><main>
+<h1>学习进度</h1><p class="sub">数据只保存在这台设备的浏览器里，换设备请用下面的导出 / 导入。</p>
+<div class="grid" id="cards"></div>
+<h2>每课速度（击键/分，绿色虚线为目标）</h2><svg class="c2" id="cS" viewBox="0 0 600 140"></svg>
+<h2>每课正确率</h2><svg class="c2" id="cA" viewBox="0 0 600 140"></svg>
+<h2>近 30 天练习时长（分钟，绿线为 30 分钟目标）</h2><svg class="c2" id="cD" viewBox="0 0 600 140"></svg>
+<h2>每个键的情况</h2>
+<table><thead><tr><th>键</th><th>按键次数</th><th>正确率</th><th>当前速度</th><th>最佳</th><th>置信度</th><th>预计还需</th></tr></thead><tbody id="tb"></tbody></table>
+<h2>数据管理</h2>
+<div class="btns"><button class="r" id="exp">导出 JSON</button><label class="r">导入 JSON<input type="file" id="imp" accept="application/json"></label><button class="r" id="clr">清除全部数据</button></div>
+</main>
+<script type="module" src="js/profile.js"></script>
+</body>
+</html>

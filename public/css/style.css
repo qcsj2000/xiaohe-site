@@ -84,3 +84,16 @@ table{width:100%;border-collapse:collapse;font-size:13px;background:var(--card);
 .pb{height:8px;background:var(--line);border-radius:4px;overflow:hidden;min-width:70px}.pb i{display:block;height:100%}
 .btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}label.r input{display:none}
 .ref .k i{display:block}.ref p,.ref li{font-size:14px;line-height:1.8}code{font-family:Consolas,Menlo,monospace;background:var(--line);padding:1px 5px;border-radius:4px}
+
+#kb .k{touch-action:manipulation;-webkit-user-select:none;user-select:none}
+@media (pointer:coarse){#kb .k{padding:13px 0 11px}#kb .k b{font-size:20px}}
+
+/* 长词有 6–8 个输入格：格子可以收窄，小屏也放得下 */
+.slots{padding:0 4px}.slot{flex:0 1 64px;min-width:26px;width:auto}
+.slots[data-n="6"] .slot,.slots[data-n="8"] .slot{height:56px;font-size:26px;line-height:52px;flex-basis:48px}
+.slots[data-n="8"]{gap:6px}.slots[data-n="6"]{gap:8px}
+.msg{gap:6px;padding:0 4px}.msg b{flex:0 1 34px;min-width:20px}
+.flow{flex-wrap:wrap}
+em.up{color:var(--ok)}em.dn{color:var(--bad)}td em{font-style:normal;font-size:11px}
+#unit button{font-size:13px;padding:9px 2px}
+#kw th,#kw td{padding:5px 6px}

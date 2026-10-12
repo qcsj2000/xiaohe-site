@@ -1,11 +1,11 @@
 import { ORDER } from './data.js';
-import { Target, timeToSpeed, makeResult, validateResult, buildKeyStats, learningRate, dayKey } from './core/model.js';
+import { Target, timeToSpeed, makeResult, validateResult, buildKeyStats, learningRate, dayKey, weekKey, weeklyKeySpeeds } from './core/model.js';
 import { lineChart, barChart } from './charts.js';
 import { load, KEY, raw } from './store.js';
 
 const $ = (id) => document.getElementById(id);
 const fm = (n, d = 0) => n.toLocaleString('zh-CN', { minimumFractionDigits: d, maximumFractionDigits: d });
-const { settings: S, results: raws } = load();
+const { settings: S, results: raws, wrong: WR } = load();
 const results = raws.map(makeResult).filter(validateResult), tg = new Target(S.target);
 const sum = (f) => results.reduce((a, r) => a + f(r), 0), len = sum((r) => r.len);
 
@@ -19,6 +19,35 @@ lineChart($('cS'), results.map((r) => r.speed), { ref: S.target, fmt: (v) => fm(
 lineChart($('cA'), results.map((r) => r.accuracy * 100), { fmt: (v) => fm(v, 1) + '%', empty: '数据不足：至少完成 2 课' });
 const ds = [...Array(30)].map((_, i) => dayKey(Date.now() - (29 - i) * 864e5));
 barChart($('cD'), ds.map((d) => sum((r) => (dayKey(r.t) === d ? r.time : 0)) / 60000), { ref: S.goal, tip: (i, v) => `${ds[i]}：${fm(v, 1)} 分钟` });
+
+// 每周汇总（周一为起点）
+const weekOf = weekKey;
+const wk = new Map();
+for (const r of results) {
+  const k = weekOf(r.t), w = wk.get(k) ?? { n: 0, time: 0, sp: 0, len: 0, err: 0, score: 0 };
+  w.n++; w.time += r.time; w.sp += r.speed; w.len += r.len; w.err += r.errors; w.score += r.score; wk.set(k, w);
+}
+const weeks = [...wk].sort((a, b) => a[0].localeCompare(b[0])).slice(-12);
+$('wk').innerHTML = weeks.map(([k, w], i) => {
+  const sp = w.sp / w.n, acc = ((w.len - w.err) / w.len) * 100, P = i ? weeks[i - 1][1] : null;
+  const dl = (a, b, d, u = '') => (P ? ` <em class="${a >= b ? 'up' : 'dn'}">${a >= b ? '↑' : '↓'}${fm(Math.abs(a - b), d)}${u}</em>` : '');
+  return `<tr><td>${k}</td><td>${w.n}</td><td>${fm(w.time / 60000, 1)}</td><td>${fm(sp)}${dl(sp, P && P.sp / P.n, 0)}</td><td>${fm(acc, 1)}%${dl(acc, P && ((P.len - P.err) / P.len) * 100, 1, '%')}</td><td>${fm(w.score)}</td></tr>`;
+}).join('') || '<tr><td colspan="6">还没有记录</td></tr>';
+// 错题本
+const wrong = Object.entries(WR ?? {}).sort((a, b) => b[1].n - a[1].n);
+$('wb').innerHTML = wrong.map(([c, w]) => `<tr><td><b>${c}</b></td><td>${w.p}</td><td>${w.k.toUpperCase()}</td><td>${w.n}</td><td>${w.ok}/3</td></tr>`).join('') || '<tr><td colspan="5">错题本是空的：答错的字词会自动进来，连对 3 次移出</td></tr>';
+$('clrWrong').onclick = () => { try { const st = JSON.parse(raw()); st.wrong = {}; localStorage.setItem(KEY, JSON.stringify(st)); } catch { /* 没有数据就不用清 */ } location.reload(); };
+
+// 每个键每周速度
+const ks = weeklyKeySpeeds(results, 6), rows = ORDER.filter((k) => ks.speeds.has(k));
+$('kw').innerHTML = rows.length
+  ? `<thead><tr><th>键</th>${ks.weeks.map((w) => `<th>${w.slice(5)}</th>`).join('')}<th>变化</th></tr></thead><tbody>${rows.map((k) => {
+    const v = ks.speeds.get(k), a = v.at(-1), b = v.at(-2);
+    const cell = (x) => (x == null ? '<td>—</td>' : `<td style="background:hsl(${Math.round(Math.min(x / S.target, 1) * 120)} 55% 62%);color:#10261a">${fm(x)}</td>`);
+    const d = a != null && b != null ? `<em class="${a >= b ? 'up' : 'dn'}">${a >= b ? '↑' : '↓'}${fm(Math.abs(a - b))}</em>` : '—';
+    return `<tr><td><b>${k.toUpperCase()}</b></td>${v.map(cell).join('')}<td>${d}</td></tr>`;
+  }).join('')}</tbody>`
+  : '<tbody><tr><td>还没有记录</td></tr></tbody>';
 
 const stats = buildKeyStats(ORDER, results);
 $('tb').innerHTML = ORDER.map((k) => {

@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>小鹤双拼 · 练习</title>
 <link rel="stylesheet" href="css/style.css">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1f6feb">
+<link rel="icon" href="icon.svg">
 </head>
 <body>
 <nav class="nav"><b>小鹤双拼练习</b><a href="index.html" class=on>练习</a><a href="profile.html">进度</a><a href="keyboard.html">键位表</a></nav>
@@ -20,6 +23,7 @@
 <div class="metrics" id="metrics"></div>
 <div class="goal"><div id="goalT"></div><div class="gbar"><i id="goalB"></i></div></div>
 <div class="seg" id="seg"><button data-m="guided">引导</button><button data-m="r1">第一行</button><button data-m="r2">第二行</button><button data-m="r3">第三行</button><button data-m="all">混合</button></div>
+<div class="seg" id="unit"><button data-u="char">单字</button><button data-u="word">词组</button><button data-u="long">长词</button><button data-u="mix">混合</button><button data-u="wrong">错题</button><button data-u="today">今日错题</button></div>
 <div class="strip" id="strip"></div><p class="info" id="info"></p>
 <div class="card">
 <div class="stage" id="stage">
@@ -32,12 +36,12 @@
 <p class="leg"><span class="o">橙</span> 声母、韵母同一个键 · <span class="g">绿</span> y / w / 零声母音节用此键作韵母 · 键下色条：熟练度（红→绿）</p>
 <div class="chartbox"><div id="chartT" class="chartT"></div><svg id="chart" viewBox="0 0 300 80" preserveAspectRatio="none"></svg></div>
 <div class="opts">
-<span><label><input type="checkbox" id="oPy" checked> 显示拼音</label><label><input type="checkbox" id="oHint"> 键位提示</label><label>目标 <input type="number" id="tgt" min="75" max="750" value="100" style="width:58px"> 击键/分</label></span>
+<span><label><input type="checkbox" id="oPy" checked> 显示拼音</label><label><input type="checkbox" id="oHint"> 键位提示</label><label><input type="checkbox" id="oClick"> 按键音</label><label><input type="checkbox" id="oBeep" checked> 错误提示音</label><label>目标 <input type="number" id="tgt" min="75" max="750" value="100" style="width:58px"> 击键/分</label></span>
 <button class="r" id="reset">重置统计</button>
 </div>
-<input id="cap" type="password" autocapitalize="off" autocomplete="new-password" autocorrect="off" spellcheck="false" aria-label="输入">
 </div>
 </main>
 <script type="module" src="js/practice.js"></script>
+<script type="module" src="js/pwa.js"></script>
 </body>
 </html>

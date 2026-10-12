@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { Target, speedToTime, makeResult, validateResult, buildKeyStats, findSession, learningRate, guidedKeys, pickLesson } from '../public/js/core/model.js';
+import { weekKey, weeklyKeySpeeds, Target, speedToTime, makeResult, validateResult, buildKeyStats, findSession, learningRate, guidedKeys, pickLesson } from '../public/js/core/model.js';
 import { polyFit, polyEval, makeFilter } from '../public/js/core/math.js';
 
 test('速度和用时互转', () => { assert.equal(speedToTime(120), 500); assert.equal(new Target(120).confidence(250), 2); assert.equal(new Target(120).confidence(null), null); });
@@ -39,7 +39,17 @@ test('引导解锁：先开 minSize 个键，全部达标才开下一个', () =>
   assert.deepEqual([...g.included], ['a', 'b', 'c']); assert.equal(g.focus, 'c');
 });
 test('出题：焦点键权重更高且不连续重复', () => {
-  const pool = [{ k: 'aa' }, { k: 'bb' }, { k: 'cc' }], out = pickLesson(pool, 'a', 300);
+  const pool = [{ k: 'aa' }, { k: 'bb' }, { k: 'cc' }], out = pickLesson(pool, 'a', 600);
   assert.equal(out.length, 300); assert.ok(out.every((x, i) => i === 0 || x !== out[i - 1]));
   assert.ok(out.filter((x) => x.k === 'aa').length > out.filter((x) => x.k === 'bb').length);
+});
+
+test('每个键每周速度：按周分组、按命中数加权', () => {
+  const now = new Date('2026-10-14T12:00:00').getTime(), day = 864e5;
+  const mk = (t, h) => makeResult({ t, len: 40, time: 20000, errors: 0, hist: { a: h } });
+  const r = [mk(now, [10, 0, 600]), mk(now - 7 * day, [10, 0, 300]), mk(now - 7 * day, [30, 0, 500])];
+  const { weeks, speeds } = weeklyKeySpeeds(r, 3, now), v = speeds.get('a');
+  assert.equal(weeks.length, 3); assert.equal(weeks.at(-1), weekKey(now));
+  assert.equal(v[0], null); assert.ok(Math.abs(v[2] - 100) < 1e-9);   // 本周 600ms → 100 击键/分
+  assert.ok(Math.abs(v[1] - 60000 / ((10 * 300 + 30 * 500) / 40)) < 1e-9); // 上周加权平均 450ms
 });

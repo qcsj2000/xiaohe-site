@@ -98,18 +98,38 @@ export function guidedKeys(letters, stats, target, { minSize = 6, recover = fals
   return { keys, included: new Set(inc().map((k) => k.letter)), focus: weakest?.letter ?? null };
 }
 
-/** 抽一课的题：含焦点键的音节权重 ×4，且不连续重复。 */
-export function pickLesson(pool, focus, n, rng = Math.random) {
+/** 抽一课的题，直到累计击键数达到 budget：含焦点键的项权重 ×4，且不连续重复。 */
+export function pickLesson(pool, focus, budget, rng = Math.random) {
   const w = pool.map((x) => (focus && x.k.includes(focus) ? 4 : 1)), out = [];
-  let prev = null;
-  while (out.length < n && pool.length) {
+  let prev = null, keys = 0;
+  while (keys < budget && pool.length) {
     const tot = w.reduce((a, b, i) => a + (pool[i] === prev && pool.length > 1 ? 0 : b), 0);
     let r = rng() * tot, j = 0;
     for (; j < pool.length; j++) { if (pool[j] === prev && pool.length > 1) continue; r -= w[j]; if (r <= 0) break; }
-    prev = pool[Math.min(j, pool.length - 1)]; out.push(prev);
+    prev = pool[Math.min(j, pool.length - 1)]; out.push(prev); keys += prev.k.length;
   }
   return out;
 }
 
 export const dailyMinutes = (results, now = Date.now()) =>
   results.filter((r) => dayKey(r.t) === dayKey(now)).reduce((a, r) => a + r.time, 0) / 60000;
+
+/** 周一为起点的周标识（YYYY-MM-DD）。 */
+export const weekKey = (t) => { const d = new Date(t); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return dayKey(d); };
+/** 每个键最近 nWeeks 周的平均速度（击键/分，按命中数加权）；没练过的周为 null。 */
+export function weeklyKeySpeeds(results, nWeeks = 6, now = Date.now()) {
+  const weeks = [];
+  for (let i = nWeeks - 1; i >= 0; i--) weeks.push(weekKey(now - i * 7 * 864e5));
+  const acc = new Map();
+  for (const r of results) {
+    const w = weekKey(r.t); if (!weeks.includes(w)) continue;
+    for (const [k, h] of Object.entries(r.hist)) {
+      if (!(h[0] > 0 && h[2] > 0)) continue;
+      const m = acc.get(k) ?? new Map(), a = m.get(w) ?? [0, 0];
+      a[0] += h[2] * h[0]; a[1] += h[0]; m.set(w, a); acc.set(k, m);
+    }
+  }
+  const speeds = new Map();
+  for (const [k, m] of acc) speeds.set(k, weeks.map((w) => (m.has(w) ? timeToSpeed(m.get(w)[0] / m.get(w)[1]) : null)));
+  return { weeks, speeds };
+}

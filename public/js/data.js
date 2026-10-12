@@ -1,9 +1,12 @@
+import { GEN } from './chars.js';
+import { WORDS } from './words.js';
+import { LONG } from './longwords.js';
 
 // 数据：声母:韵母+例字（v = ü；_ = 零声母）。双拼码由规则计算，不再手写。
 const SRC=`b:a八 o波 i比 u不 ai白 ei杯 ao包 an半 en本 ang帮 eng崩 ie别 iao表 ian边 in宾 ing冰
 p:a怕 o破 i皮 u普 ai拍 ei陪 ao跑 ou剖 an盘 en盆 ang旁 eng朋 ie撇 iao票 ian片 in品 ing平
 m:a妈 o摸 e么 i米 u木 ai买 ei美 ao毛 ou某 an满 en门 ang忙 eng梦 ie灭 iao庙 ian面 in民 ing名 iu谬
-f:a发 o佛 u夫 ei飞 ou否 an饭 en分 ang方 eng风
+f:a发 u夫 ei飞 ou否 an饭 en分 ang方 eng风
 d:a大 e的 i地 u读 ai带 ao到 ou豆 an但 ang当 eng等 ong东 ie爹 iao掉 ian点 ing定 iu丢 uo多 ui对 uan短 un顿
 t:a他 e特 i体 u土 ai太 ao桃 ou头 an谈 ang汤 eng疼 ong同 ie铁 iao条 ian天 ing听 uo拖 ui退 uan团 un吞
 n:a那 e呢 i你 u奴 ai奶 ei内 ao脑 an难 en嫩 ang囊 eng能 ong农 ie捏 iao鸟 ian年 in您 iang娘 ing宁 iu牛 uo挪 uan暖 v女 ve虐
@@ -47,14 +50,19 @@ x:i希习 u许 ia虾 ie谢 iao笑 ian线 in新 iang香 ing姓 iong熊 iu休 ue�
 zh:i直只 u竹猪 a渣 e者 ai债 ao照 ou洲 an战 en阵 ang章 eng争 ong钟 uo捉 ui坠 uan砖 uang壮
 ch:i迟 u除厨 a茶 e彻 ai拆 ao潮 an馋 en晨 ang场 eng程 ong虫 uai踹 ui锤 uan船 un纯 uang床
 sh:i师十 u树束 a沙 e社 ai筛 ao烧 ou手 an闪 en身 ang伤 eng声 ua耍 uo硕 uai摔 ui睡 uan涮 un瞬 uang霜
-r:u乳 e惹 ao饶 ou柔 an染 en仁 ang嚎 ong荣 uo弱 ui锐 un闰
+r:u乳 e惹 ao饶 ou柔 an染 en仁 ang嚷 ong荣 uo弱 ui锐 un闰
 z:i子字 u族 e泽 ai灾 ao造 ou邹 an暂 ang葬 ong宗 uo左 ui醉 un遵
 c:i词刺 u粗 ai猜 ao操 an惨 ang苍 eng蹭 ong聪 uo措 ui翠 un存
-s:i思死 u速 e瑟 ai赛 ao嫂 ou艇 an伞 ong宋 uo缩 ui碎 uan算 un损
+s:i思死 u速 e瑟 ai赛 ao嫂 ou艘 an伞 ong宋 uo缩 ui碎 uan算 un损
 y:i衣医 in音 ing影 ong永 u鱼语 ue越 uan院 un运
 w:u五武 a娃 ang网旺 o窝
 _:e鹅额 ai矮 ao傲 ou偶 an岸 ang盎 er耳儿`;
-const D=(SRC+'\n'+MORE).split('\n').flatMap(l=>{const[i,r]=l.split(':');return[...r.matchAll(/([a-z]+)(\p{Script=Han}+)/gu)].flatMap(([,f,cs])=>[...cs].map(c=>({c,p:(i==='_'?f:i+f).replace('v','ü'),k:code(i,f)})))});
+const D0=(SRC+'\n'+MORE+'\n'+GEN).split('\n').flatMap(l=>{const[i,r]=l.split(':');return[...r.matchAll(/([a-z]+)(\p{Script=Han}+)/gu)].flatMap(([,f,cs])=>[...cs].map(c=>({c,p:(i==='_'?f:i+f).replace('v','ü'),k:code(i,f)})))});
+const _seen=new Set(),D=D0.filter((x)=>!_seen.has(x.c)&&_seen.add(x.c));
+// 词组：每行「词 拼音 拼音」，只保留每个音节都在单字题库里有键序的词
+const SYL=new Map(D.map((x)=>[x.p.replace('ü','v'),x.k]));
+const parseWords=(s)=>s.split('\n').flatMap((l)=>{const[c,...ps]=l.split(' ');const ks=ps.map((p)=>SYL.get(p));return c&&ks.length&&ks.every(Boolean)?[{c,p:ps.join(' ').replace(/v/g,'ü'),k:ks.join('')}]:[]});
+const W=parseWords(WORDS),WL=parseWords(LONG);
 const ROWS=['qwertyuiop','asdfghjkl','zxcvbnm'];
 // 解锁顺序：贪心——每次选能让可练音节增加最多的键
 const ORDER=(()=>{const left=new Set(D.flatMap(x=>[...x.k])),got=new Set(),out=[];while(left.size){let best='',bs=-1;for(const k of left){const g=D.filter(x=>[...x.k].every(c=>got.has(c)||c===k)).length*1000+D.filter(x=>x.k.includes(k)).length;if(g>bs){bs=g;best=k}}got.add(best);left.delete(best);out.push(best)}return out})();
@@ -67,4 +75,4 @@ const label=k=>`声 ${'bpmfdtnlgkhjqxrzcsyw'.includes(k)?k:{u:'sh',i:'ch',v:'zh'
  const EX={q:'秋',w:'闱',r:'软',t:'|月',y:'云',u:'梳',i:'翅',p:'撇',s:'怂|恿',d:'带',f:'粉',g:'更',h:'航',j:'|安',k:'快|迎',l:'两|王',z:'揍',x:'夏|蛙',c:'草',v:'追|鱼',b:'滨',n:'鸟',m:'眠'};
 const ex=k=>{const[o='',g='']=(EX[k]||'').split('|');return`<span class="o">${o}</span><span class="g">${g}</span>`};
 
-export{D,ROWS,ORDER,label,ex,EX,FIN,code};
+export{D,W,WL,ROWS,ORDER,label,ex,EX,FIN,code};
